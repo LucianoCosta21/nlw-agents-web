@@ -1,4 +1,4 @@
 export type CreateRoomRequest = {
-  name: string
+ name: string
   description: string
 }

@@ -18,6 +18,7 @@ import {
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { useForm } from 'react-hook-form';
+import { useCreateQuestion } from '@/http/use-create-question';
 
 const createQuesttionSchema = z.object({
   question: z
@@ -34,6 +35,7 @@ interface QuestionFormProps {
 }
 
 export function QuestionForm({ roomId }: QuestionFormProps) {
+  const { mutateAsync: createQuestion } = useCreateQuestion(roomId);
   const form = useForm<CreateQuestionFormData>({
     resolver: zodResolver(createQuesttionSchema),
     defaultValues: {
@@ -41,9 +43,11 @@ export function QuestionForm({ roomId }: QuestionFormProps) {
     },
   });
 
-  function handleCreateQuestion(data: CreateQuestionFormData) {
-    console.log(data, roomId);
+  async function handleCreateQuestion(data: CreateQuestionFormData) {
+    await createQuestion(data);
   }
+
+  const { isSubmitting } = form.formState;
 
   return (
     <Card>
@@ -67,6 +71,7 @@ export function QuestionForm({ roomId }: QuestionFormProps) {
                   <FormLabel>Sua Pergunta</FormLabel>
                   <FormControl>
                     <Textarea
+                      disabled={isSubmitting}
                       className="min-h-[100px]"
                       placeholder="O que você gostaria de saber?"
                       {...field}
@@ -76,7 +81,13 @@ export function QuestionForm({ roomId }: QuestionFormProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Enviar Pergunta</Button>
+            <Button
+              disabled={isSubmitting}
+              className="cursor-pointer"
+              type="submit"
+            >
+              Enviar Pergunta
+            </Button>
           </form>
         </Form>
       </CardContent>
